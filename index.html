@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <title>Project Timeline</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="ambient ambient-one" aria-hidden="true"></div>
+  <div class="ambient ambient-two" aria-hidden="true"></div>
+
+  <header class="profile-header">
+    <div class="profile-identity">
+      <img id="profile-photo" class="profile-photo" alt="" hidden>
+      <div>
+        <p id="profile-label" class="profile-label"></p>
+        <h1 id="profile-name" class="profile-name"></h1>
+      </div>
+    </div>
+
+    <nav id="contact-links" class="contact-links" aria-label=""></nav>
+  </header>
+
+  <main>
+    <section class="timeline-section" aria-label="Project timeline">
+      <div class="filter-bar" aria-label="Project filters">
+        <div class="filter-controls">
+          <label class="search-filter" for="project-search">
+            <span>Search</span>
+            <input id="project-search" type="search" placeholder="Search projects" autocomplete="off" spellcheck="false">
+          </label>
+
+          <fieldset id="tag-filters" class="status-filters tag-filters">
+            <legend>Tags</legend>
+          </fieldset>
+
+          <fieldset class="status-filters">
+            <legend>Status</legend>
+            <label class="filter-chip released">
+              <input type="checkbox" name="status" value="Released" checked>
+              <i class="filter-dot" aria-hidden="true"></i>
+              <span>Released</span>
+            </label>
+            <label class="filter-chip unfinished">
+              <input type="checkbox" name="status" value="Unfinished" checked>
+              <i class="filter-dot" aria-hidden="true"></i>
+              <span>Unfinished</span>
+            </label>
+            <label class="filter-chip prototype">
+              <input type="checkbox" name="status" value="Prototype">
+              <i class="filter-dot" aria-hidden="true"></i>
+              <span>Prototype</span>
+            </label>
+            <label class="filter-chip concept">
+              <input type="checkbox" name="status" value="Concept">
+              <i class="filter-dot" aria-hidden="true"></i>
+              <span>Concept</span>
+            </label>
+          </fieldset>
+
+          <fieldset class="status-filters type-filters">
+            <legend>Type</legend>
+            <label class="filter-chip type">
+              <input type="checkbox" name="type" value="Game" checked>
+              <i class="filter-dot" aria-hidden="true"></i>
+              <span>Game</span>
+            </label>
+            <label class="filter-chip type">
+              <input type="checkbox" name="type" value="App" checked>
+              <i class="filter-dot" aria-hidden="true"></i>
+              <span>App</span>
+            </label>
+          </fieldset>
+
+          <fieldset id="platform-filters" class="status-filters platform-filters">
+            <legend>Platform</legend>
+          </fieldset>
+
+          <div class="position-filter-control">
+            <span class="filter-control-label">Position</span>
+            <details id="position-dropdown" class="filter-dropdown">
+              <summary id="position-summary">All positions</summary>
+              <div id="position-filters" class="dropdown-menu" role="group" aria-label="Position"></div>
+            </details>
+          </div>
+        </div>
+
+        <p id="project-count" class="timeline-count">— projects</p>
+      </div>
+
+      <div class="scroll-navigator">
+        <span id="nav-start">2005</span>
+        <label class="sr-only" for="timeline-range">Timeline position</label>
+        <input id="timeline-range" type="range" min="0" max="100" value="0">
+        <span id="nav-end">2026</span>
+        <div class="zoom-controls" aria-label="Timeline zoom">
+          <button id="zoom-out" type="button" aria-label="Zoom out">−</button>
+          <button id="zoom-in" type="button" aria-label="Zoom in">+</button>
+        </div>
+      </div>
+
+      <div id="timeline-scroll" class="timeline-scroll">
+        <div id="timeline" class="timeline" role="group" aria-label="Horizontal project timeline by year"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <small>Portfolio Visualizer - MIT License - Copyright 2026 Serge Kopov</small>
+  </footer>
+
+  <aside id="project-tooltip" class="project-tooltip" aria-live="polite" hidden></aside>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
