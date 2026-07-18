@@ -88,13 +88,9 @@
   let hideTimer = null;
 
   const datedProjects = projects.filter((project) => project.periods.length);
-  const rawYears = datedProjects
-    .flatMap((project) => project.periods.flatMap((period) => [period.dateStart, period.dateEnd]))
-    .filter(Boolean)
-    .map((value) => Number(String(value).slice(0, 4)));
-  const minYear = Math.min(...rawYears);
-  const maxYear = Math.max(now.getFullYear(), ...rawYears);
-  const years = Array.from({ length: maxYear - minYear + 1 }, (_, index) => minYear + index);
+  let minYear = now.getFullYear();
+  let maxYear = minYear;
+  let years = [minYear];
   let timelineWidth = EDGE * 2 + years.length * yearWidth;
   const todayValue = dateToYearValue(now);
 
@@ -221,7 +217,7 @@
       return Number(normalized) + (boundary === 'end' ? 1 : 0);
     }
     const match = normalized.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-    if (!match) return Number(normalized.slice(0, 4)) || minYear;
+    if (!match) return Number(normalized.slice(0, 4)) || now.getFullYear();
     const year = Number(match[1]);
     const instant = Date.UTC(year, Number(match[2]) - 1, Number(match[3]));
     const yearStart = Date.UTC(year, 0, 1);
@@ -240,6 +236,28 @@
       _start: start,
       _end: safeEnd
     };
+  }
+
+  function updateTimelineRange(periods) {
+    if (periods.length) {
+      minYear = Math.floor(Math.min(...periods.map((period) => period._start)));
+      maxYear = Math.max(
+        minYear,
+        ...periods.map((period) => (
+          period._period.dateEnd
+            ? Number(String(period._period.dateEnd).slice(0, 4)) || minYear
+            : now.getFullYear()
+        ))
+      );
+    } else {
+      minYear = now.getFullYear();
+      maxYear = minYear;
+    }
+
+    years = Array.from({ length: maxYear - minYear + 1 }, (_, index) => minYear + index);
+    timelineWidth = EDGE * 2 + years.length * yearWidth;
+    document.getElementById('nav-start').textContent = minYear;
+    document.getElementById('nav-end').textContent = maxYear;
   }
 
   function assignLanes(items) {
@@ -266,7 +284,7 @@
       });
   }
 
-  function renderTimeline() {
+  function renderTimeline({ resetScroll = false } = {}) {
     hideTooltip();
     timeline.replaceChildren();
 
@@ -290,6 +308,7 @@
     const visiblePeriods = visibleProjects.flatMap((project) => (
       project.periods.map((period, periodIndex) => projectInterval(project, period, periodIndex))
     ));
+    updateTimelineRange(visiblePeriods);
     const packedProjects = assignLanes(visiblePeriods);
     const laneCount = Math.max(1, ...packedProjects.map(({ lane }) => lane + 1));
     const timelineHeight = BAR_TOP + laneCount * BAR_STEP + 66;
@@ -318,12 +337,14 @@
       timeline.append(label);
     });
 
-    const todayX = xForValue(todayValue);
-    const todayLine = create('div', 'today-line');
-    todayLine.style.left = todayX + 'px';
-    const todayLabel = create('div', 'today-label', 'TODAY · ' + formatToday(now).toUpperCase());
-    todayLabel.style.left = todayX + 'px';
-    timeline.append(todayLine, todayLabel);
+    if (todayValue >= minYear && todayValue < maxYear + 1) {
+      const todayX = xForValue(todayValue);
+      const todayLine = create('div', 'today-line');
+      todayLine.style.left = todayX + 'px';
+      const todayLabel = create('div', 'today-label', 'TODAY · ' + formatToday(now).toUpperCase());
+      todayLabel.style.left = todayX + 'px';
+      timeline.append(todayLine, todayLabel);
+    }
 
     packedProjects.forEach(({ project, lane }) => {
       const left = project._left;
@@ -364,7 +385,10 @@
       'Horizontal project timeline by year. ' + visibleProjects.length + ' projects across ' +
         visiblePeriods.length + ' periods displayed.'
     );
-    requestAnimationFrame(syncNavigator);
+    requestAnimationFrame(() => {
+      if (resetScroll) scroller.scrollLeft = 0;
+      syncNavigator();
+    });
   }
 
   function formatToday(date) {
@@ -588,8 +612,6 @@
     }, 170);
   }
 
-  document.getElementById('nav-start').textContent = minYear;
-  document.getElementById('nav-end').textContent = maxYear;
   tooltip.addEventListener('mouseenter', () => window.clearTimeout(hideTimer));
   tooltip.addEventListener('mouseleave', scheduleHide);
   document.addEventListener('pointerdown', (event) => {
@@ -626,7 +648,6 @@
 
     const leftValue = minYear + (scroller.scrollLeft - EDGE) / yearWidth;
     yearWidth = nextYearWidth;
-    timelineWidth = EDGE * 2 + years.length * yearWidth;
     renderTimeline();
 
     requestAnimationFrame(() => {
@@ -640,21 +661,18 @@
   zoomOutButton.addEventListener('click', () => zoomTimeline(0.5));
   zoomInButton.addEventListener('click', () => zoomTimeline(2));
   window.addEventListener('resize', syncNavigator);
-  statusInputs.forEach((input) => input.addEventListener('change', renderTimeline));
-  typeInputs.forEach((input) => input.addEventListener('change', renderTimeline));
-  platformInputs.forEach((input) => input.addEventListener('change', renderTimeline));
+  const renderFilteredTimeline = () => renderTimeline({ resetScroll: true });
+  statusInputs.forEach((input) => input.addEventListener('change', renderFilteredTimeline));
+  typeInputs.forEach((input) => input.addEventListener('change', renderFilteredTimeline));
+  platformInputs.forEach((input) => input.addEventListener('change', renderFilteredTimeline));
   positionInputs.forEach((input) => input.addEventListener('change', () => {
     updatePositionSummary();
-    renderTimeline();
+    renderFilteredTimeline();
   }));
-  tagInputs.forEach((input) => input.addEventListener('change', renderTimeline));
-  searchInput.addEventListener('input', renderTimeline);
-  renderTimeline();
+  tagInputs.forEach((input) => input.addEventListener('change', renderFilteredTimeline));
+  searchInput.addEventListener('input', renderFilteredTimeline);
+  renderTimeline({ resetScroll: true });
   updateZoomControls();
-  requestAnimationFrame(() => {
-    scroller.scrollLeft = 0;
-    syncNavigator();
-  });
 
   let drag = null;
   scroller.addEventListener('pointerdown', (event) => {
