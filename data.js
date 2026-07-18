@@ -54,7 +54,7 @@ window.PORTFOLIO_DATA = {
       "status": "Released",
       "engine": "Unity",
       "position": [ "Game Designer" ],
-      "description": "Sheathe your sword and draw your deck, it’s time for Hearthstone! You’ll sling spells, summon minions, and command the heroes of Warcraft in battles of epic strategy.",
+      "description": "Sheathe your sword and draw your deck, it’s time for Hearthstone! You’ll sling spells, summon minions, and command the heroes of Warcraft in battles of epic strategy.\n<image='pics/hearthstone_screenshot.webp'>",
       "links": [ "https://hearthstone.blizzard.com" ],
       "icon": "pics/hearthstone_icon.png"
     }
