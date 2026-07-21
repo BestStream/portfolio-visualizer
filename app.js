@@ -43,6 +43,31 @@
     .toLowerCase()
     .replace(/\s+/g, ' ')
     .trim();
+  const normalizeFilterValue = (value) => String(value || '')
+    .normalize('NFKC')
+    .toLowerCase()
+    .trim()
+    .replace(/[^\p{Letter}\p{Number}]+/gu, '-')
+    .replace(/^-+|-+$/g, '');
+  const urlParams = new URLSearchParams(window.location.search);
+  const readUrlFilter = (...names) => {
+    const supplied = names.some((name) => urlParams.has(name));
+    const values = new Set(
+      names
+        .flatMap((name) => urlParams.getAll(name))
+        .flatMap((value) => value.split(','))
+        .map(normalizeFilterValue)
+        .filter(Boolean)
+    );
+    return { supplied, values };
+  };
+  const applyUrlFilter = (inputs, ...names) => {
+    const filter = readUrlFilter(...names);
+    if (!filter.supplied) return;
+    inputs.forEach((input) => {
+      input.checked = filter.values.has(normalizeFilterValue(input.value));
+    });
+  };
   const buildProjectSearchText = (project) => collectSearchValues(project)
     .map(normalizeSearchText)
     .filter(Boolean)
@@ -179,8 +204,6 @@
     else positionSummary.textContent = selected.length + ' positions';
   }
 
-  updatePositionSummary();
-
   const formatTagLabel = (tag) => tag
     .replace(/([a-z])([A-Z])/g, '$1 $2')
     .replace(/[-_]+/g, ' ')
@@ -200,6 +223,14 @@
     tagFilters.append(label);
     return input;
   });
+
+  applyUrlFilter(statusInputs, 'status');
+  applyUrlFilter(typeInputs, 'type');
+  applyUrlFilter(platformInputs, 'platform');
+  applyUrlFilter(positionInputs, 'position');
+  applyUrlFilter(tagInputs, 'tag', 'tags');
+  if (urlParams.has('search')) searchInput.value = urlParams.get('search') || '';
+  updatePositionSummary();
 
   const statusClass = (status) => 'status-' + (status || 'unfinished').toLowerCase().replace(/[^a-z]+/g, '-');
   const xForValue = (value) => EDGE + (value - minYear) * yearWidth;
