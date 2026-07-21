@@ -6,23 +6,8 @@ Example: https://beststream.github.io/portfolio-visualizer
 
 Example of a real portfolio: https://sunday.games/serge-kopov-portfolio
 
-## URL filter parameters
+## URL Filter Parameters
 
-Filters can be applied when opening the timeline by adding query parameters to the URL:
+Filters can be applied when opening the timeline by adding query parameters to the URL: search, tags, status, type, platform, and position. Parameters can be combined. Parameter values are case-insensitive. Spaces and punctuation in filter names are written as hyphens, so `Unity Developer` becomes `unity-developer`. `tags` is also supported as an alias for `tag`.
 
-- `search=puzzle`
-- `type=app`
-- `status=released`
-- `platform=ios`
-- `position=unity-developer`
-- `tag=highlight`
-
-Parameters can be combined:
-
-`?type=game&position=unity-developer&search=puzzle`
-
-Use repeated parameters or comma-separated values to select multiple options:
-
-`?status=released&status=unfinished&platform=ios,android`
-
-Parameter values are case-insensitive. Spaces and punctuation in filter names are written as hyphens, so `Unity Developer` becomes `unity-developer`. `tags` is also supported as an alias for `tag`.
+Example: https://beststream.github.io/portfolio-visualizer/?search=facebook&tags=highlight,live&status=released&type=app&platform=web&position=content-manager
